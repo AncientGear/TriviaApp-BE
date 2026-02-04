@@ -16,7 +16,7 @@ app.use(cors({
 }))
 app.use(express.urlencoded());
 
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 const mongoDbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/trivia';
 console.log(mongoDbUri);
