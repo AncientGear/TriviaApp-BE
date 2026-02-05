@@ -18,22 +18,30 @@ app.use(express.urlencoded());
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-const mongoDbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/trivia';
-console.log(mongoDbUri);
-const db = mongoose.connect(mongoDbUri, {
-    connectTimeoutMS: 1000,
-    tlsCAFile: (process.env.NODE_ENV == 'production' ? 'global-bundle.pem': undefined)
-});
-db.catch((err) => {
-    console.log(`Failed to connect to mongodb: ${mongoDbUri}`)
-    console.log(err) 
-    process.exit(1)
-})
+const mongoDbUri = process.env.MONGODB_URI || 'localhost:27017/trivia';
 
-ensureInitialData();
+async function startServer() {
+    try {
+        await mongoose.connect(mongoDbUri, {
+            connectTimeoutMS: 10000,
+            tlsCAFile: (process.env.NODE_ENV == 'production' ? 'global-bundle.pem': undefined),
+            tls: true,
+        });
+        console.log('Connected to MongoDB');
 
-app.use("/api", apiRouter);
+        await ensureInitialData();
 
-app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
-});
+        app.use("/api", apiRouter);
+
+        app.listen(port, () => {
+            console.log(`Server is listening on port ${port}`);
+        });
+
+    } catch (err) {
+        console.log(`Failed to connect to mongodb: ${mongoDbUri}`)
+        console.log(err) 
+        process.exit(1)
+    }
+}
+
+startServer();
