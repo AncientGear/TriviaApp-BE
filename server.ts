@@ -24,7 +24,7 @@ async function startServer() {
     try {
         await mongoose.connect(mongoDbUri, {
             connectTimeoutMS: 10000,
-            tlsCAFile: (process.env.NODE_ENV == 'production' ? 'global-bundle.pem': undefined),
+            tlsCAFile: (process.env.NODE_ENV == 'production' ? './global-bundle.pem': undefined),
             tls: true,
         });
         console.log('Connected to MongoDB');
