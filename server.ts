@@ -18,14 +18,14 @@ app.use(express.urlencoded());
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-const mongoDbUri = process.env.MONGODB_URI || 'localhost:27017/trivia';
+const mongoDbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/trivia';
 
 async function startServer() {
     try {
         await mongoose.connect(mongoDbUri, {
             connectTimeoutMS: 10000,
-            tlsCAFile: (process.env.NODE_ENV == 'production' ? './global-bundle.pem': undefined),
-            tls: true,
+            tlsCAFile: (process.env.NODE_ENV == 'production' ? 'global-bundle.pem': undefined),
+            tls: (process.env.NODE_ENV == 'production' ? true : false),
         });
         console.log('Connected to MongoDB');
 
