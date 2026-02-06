@@ -1,0 +1,35 @@
+
+
+version: 0.2
+
+env:
+  secrets-manager:
+    DOCKERHUB_USERNAME: arn to aws secret
+    DOCKERHUB_PASSWORD: arn to aws secret
+
+phases:
+  pre_build:
+    commands:
+      - echo "Starting deployment process..."
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 417414681229.dkr.ecr.us-east-1.amazonaws.com
+      - echo "Logging in to Docker Hub..."
+      - printf "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - export TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION:-$(date +%s)}
+      - echo "Using tag $TAG"
+  build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build -t trivia-backend .
+      - docker tag trivia-backend:latest 417414681229.dkr.ecr.us-east-1.amazonaws.com/trivia-backend:latest
+      - docker tag trivia-backend:latest 417414681229.dkr.ecr.us-east-1.amazonaws.com/trivia-backend:$TAG
+  post_build:
+    commands:
+      - echo "Pushing Docker images..."
+      - docker push 417414681229.dkr.ecr.us-east-1.amazonaws.com/trivia-backend:latest
+      - docker push 417414681229.dkr.ecr.us-east-1.amazonaws.com/trivia-backend:$TAG
+      - printf '[{"name":"trivia-backend","imageUri":"%s"}]' 417414681229.dkr.ecr.us-east-1.amazonaws.com/trivia-backend:$TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
