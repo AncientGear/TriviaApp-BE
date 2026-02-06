@@ -38,7 +38,6 @@ async function startServer() {
         });
 
     } catch (err) {
-        console.log(`Failed to connect to mongodb: ${mongoDbUri}`)
         console.log(err) 
         process.exit(1)
     }
